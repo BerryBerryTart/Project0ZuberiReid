@@ -5,7 +5,7 @@
 	<groupId>com.berry</groupId>
 	<artifactId>Project0ZuberiReid</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-		<properties>
+	<properties>
 		<maven.compiler.source>1.8</maven.compiler.source>
 		<maven.compiler.target>1.8</maven.compiler.target>
 	</properties>
@@ -28,12 +28,19 @@
 			<artifactId>jackson-databind</artifactId>
 			<version>2.12.2</version>
 		</dependency>
-		<!-- https://mvnrepository.com/artifact/mysql/mysql-connector-java -->
+		<!-- https://mvnrepository.com/artifact/org.ini4j/ini4j -->
 		<dependency>
-			<groupId>mysql</groupId>
-			<artifactId>mysql-connector-java</artifactId>
-			<version>8.0.23</version>
+			<groupId>org.ini4j</groupId>
+			<artifactId>ini4j</artifactId>
+			<version>0.5.4</version>
 		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.mariadb.jdbc/mariadb-java-client -->
+		<dependency>
+			<groupId>org.mariadb.jdbc</groupId>
+			<artifactId>mariadb-java-client</artifactId>
+			<version>2.7.2</version>
+		</dependency>
+
 	</dependencies>
 	<build>
 		<plugins>
