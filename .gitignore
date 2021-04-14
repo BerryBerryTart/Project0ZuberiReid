@@ -1,4 +1,7 @@
 /target/
 db.ini
 *.class
+*.jar
+*.war
 /.settings/
+.classpath
