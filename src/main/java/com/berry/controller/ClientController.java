@@ -35,11 +35,22 @@ public class ClientController implements Controller {
 			ctx.status(200);
 		}
 	};
+	
+	private Handler createClient = ctx -> {
+		String fname = ctx.queryParam("fname");
+		String lname = ctx.queryParam("lname");
+		Client client = clientService.createClient(fname, lname);
+		if (client != null) {
+			ctx.json(client);
+			ctx.status(201);
+		}
+	};
 
 	@Override
 	public void mapEndpoints(Javalin app) {
 		app.get("/clients", getAllClients);
 		app.get("/clients/:id", getClientById);
+		app.post("/clients", createClient);
 	}
 
 }

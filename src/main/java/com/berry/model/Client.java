@@ -13,15 +13,16 @@ public class Client {
 	@JsonInclude(JsonInclude.Include.NON_NULL)
 	private ArrayList<Account> accounts;
 	
-	public Client(String fName, String lName, String joined, ArrayList<Account> accounts) {
-		this(fName, lName, joined);
+	public Client(String fName, String lName, String joined, int id, ArrayList<Account> accounts) {
+		this(fName, lName, joined, id);
 		this.accounts = accounts;
 	}	
 	
-	public Client(String fName, String lName, String joined) {
+	public Client(String fName, String lName, String joined, int id) {
 		this.fName = fName;
 		this.lName = lName;
 		this.joined = joined;
+		this.id = id;
 	}
 
 	
