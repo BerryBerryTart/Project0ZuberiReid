@@ -64,4 +64,5 @@ public class Client {
 	public void setAccounts(ArrayList<Account> accounts) {
 		this.accounts = accounts;
 	}
+	
 }
