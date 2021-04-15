@@ -1,34 +1,34 @@
 package com.berry.exception;
 
-public class ClientNotFoundException extends Exception {
+public class NotFoundException extends Exception {
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
 
-	public ClientNotFoundException() {
+	public NotFoundException() {
 		super();
 		// TODO Auto-generated constructor stub
 	}
 
-	public ClientNotFoundException(String message, Throwable cause, boolean enableSuppression,
+	public NotFoundException(String message, Throwable cause, boolean enableSuppression,
 			boolean writableStackTrace) {
 		super(message, cause, enableSuppression, writableStackTrace);
 		// TODO Auto-generated constructor stub
 	}
 
-	public ClientNotFoundException(String message, Throwable cause) {
+	public NotFoundException(String message, Throwable cause) {
 		super(message, cause);
 		// TODO Auto-generated constructor stub
 	}
 
-	public ClientNotFoundException(String message) {
+	public NotFoundException(String message) {
 		super(message);
 		// TODO Auto-generated constructor stub
 	}
 
-	public ClientNotFoundException(Throwable cause) {
+	public NotFoundException(Throwable cause) {
 		super(cause);
 		// TODO Auto-generated constructor stub
 	}

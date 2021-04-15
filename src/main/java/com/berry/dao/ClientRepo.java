@@ -17,13 +17,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.berry.app.Application;
-import com.berry.exception.ClientCreationException;
+import com.berry.exception.CreationException;
 import com.berry.exception.DatabaseException;
 import com.berry.model.Client;
 
-public class ClientRepo {
-	private transient String user;
-	private transient String pass;
+public class ClientRepo implements Repo {
+	private static transient String user;
+	private static transient String pass;
 	private Connection conn = null;
 	private PreparedStatement pstmt = null;
 	private ResultSet rs = null;
@@ -34,11 +34,12 @@ public class ClientRepo {
 		super();
 	}
 
-	public Client createClient(String fname, String lname) throws ClientCreationException, DatabaseException {
+	public Client createClient(String fname, String lname) throws CreationException, DatabaseException {
 		Client client = null;
 		try {
 			connectToDB();
-			pstmt = conn.prepareStatement("INSERT INTO clients.client(fname, lname) VALUES (?,?)", Statement.RETURN_GENERATED_KEYS);
+			String sql = "INSERT INTO clients.client(fname, lname) VALUES (?,?)";
+			pstmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
 			pstmt.setString(1, fname);
 			pstmt.setString(2, lname);
 			int count = pstmt.executeUpdate();
@@ -46,16 +47,10 @@ public class ClientRepo {
 				throw new DatabaseException("No Records Were Updated.");
 			}
 			rs = pstmt.getGeneratedKeys();
-			while (rs.next()) {
+			if (rs.next()) {
 				int createdId = rs.getInt("id");
-				ResultSet rs2;
-				PreparedStatement pstmt2 = conn.prepareStatement("SELECT * FROM clients.client WHERE id=?");
-				pstmt2.setInt(1, createdId);
-				rs2 = pstmt2.executeQuery();
-				while(rs2.next()) {
-					client = getClientFromRS(rs2);
-				}				
-			}
+				client = new Client(fname, lname, createdId);
+			}			
 		} catch (SQLException ex) {
 			logger.error("SQLException: " + ex.getMessage());
 		} finally {
@@ -74,9 +69,8 @@ public class ClientRepo {
 		return client;
 	}
 
-	public Client getClientById(int id) {
+	public Client getClientById(int id) throws DatabaseException {
 		Client client = null;
-
 		// try to connect
 		connectToDB();
 
@@ -106,7 +100,7 @@ public class ClientRepo {
 		return client;
 	}
 
-	public ArrayList<Client> getAllClients() {
+	public ArrayList<Client> getAllClients() throws DatabaseException {
 		ArrayList<Client> clients = new ArrayList<Client>();
 
 		// try to connect
@@ -138,6 +132,69 @@ public class ClientRepo {
 		return clients;
 	}
 
+	public Client updateClient(String fname, String lname, int id) throws DatabaseException {
+		Client client = null;
+		try {
+			String sql = "UPDATE clients.client SET fname=?, lname=? WHERE id=?";
+			connectToDB();
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setString(1, fname);
+			pstmt.setString(2, lname);
+			pstmt.setInt(3, id);
+			int count = pstmt.executeUpdate();
+			if (count == 0) {
+				throw new DatabaseException("No Records Were Updated.");
+			}			
+			client = new Client(fname, lname, id);
+					
+		} catch (SQLException ex) {
+			logger.error("SQLException: " + ex.getMessage());
+		} finally {
+			try {
+				if (conn != null) {
+					conn.close();
+				} if (stmt != null) {
+					stmt.close();
+				} if (rs != null) {
+					rs.close();
+				}
+			} catch (SQLException ex) {
+				logger.error("So this happened " + ex.getMessage() + " :(");
+			}
+		}
+		return client;
+	}
+	
+	public boolean deleteClientById(int id) throws DatabaseException {
+		boolean success = false;
+		try {
+			String sql = "DELETE FROM clients.client WHERE id=?";
+			connectToDB();
+			pstmt = conn.prepareStatement(sql);	
+			pstmt.setInt(1, id);
+			int count = pstmt.executeUpdate();
+			if (count == 0) {
+				throw new DatabaseException("No Records Were Updated.");
+			}
+			success = true;
+		} catch (SQLException ex) {
+			logger.error("SQLException: " + ex.getMessage());
+		} finally {
+			try {
+				if (conn != null) {
+					conn.close();
+				} if (stmt != null) {
+					stmt.close();
+				} if (rs != null) {
+					rs.close();
+				}
+			} catch (SQLException ex) {
+				logger.error("So this happened " + ex.getMessage() + " :(");
+			}
+		}
+		return success;
+	}
+	
 	private Client getClientFromRS(ResultSet rs) throws SQLException {
 		Client client = null;
 		String fname = rs.getString("fname");
@@ -149,7 +206,8 @@ public class ClientRepo {
 		return client;
 	}
 
-	private void connectToDB() {
+	@Override
+	public void connectToDB() throws DatabaseException {
 		try {
 			Wini ini = new Wini(new File(Application.fileIniPath));
 			final String URL = ini.get("database", "servername");
@@ -160,6 +218,7 @@ public class ClientRepo {
 			logger.error(e.getMessage());
 		} catch (SQLException e) {
 			logger.error(e.getMessage());
+			throw new DatabaseException("Failure To Connect To Database");			
 		}
 	}
 }

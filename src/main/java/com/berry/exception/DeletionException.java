@@ -1,36 +1,31 @@
 package com.berry.exception;
 
-public class ClientCreationException extends Exception {
-	/**
-	 * 
-	 */
+public class DeletionException extends Exception {
+
 	private static final long serialVersionUID = 1L;
 
-	public ClientCreationException() {
+	public DeletionException() {
 		super();
 		// TODO Auto-generated constructor stub
 	}
 
-	public ClientCreationException(String message, Throwable cause, boolean enableSuppression,
-			boolean writableStackTrace) {
+	public DeletionException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
 		super(message, cause, enableSuppression, writableStackTrace);
 		// TODO Auto-generated constructor stub
 	}
 
-	public ClientCreationException(String message, Throwable cause) {
+	public DeletionException(String message, Throwable cause) {
 		super(message, cause);
 		// TODO Auto-generated constructor stub
 	}
 
-	public ClientCreationException(String message) {
+	public DeletionException(String message) {
 		super(message);
 		// TODO Auto-generated constructor stub
 	}
 
-	public ClientCreationException(Throwable cause) {
+	public DeletionException(Throwable cause) {
 		super(cause);
 		// TODO Auto-generated constructor stub
 	}
-	
-	
 }

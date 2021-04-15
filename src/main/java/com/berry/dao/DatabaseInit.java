@@ -48,8 +48,8 @@ public class DatabaseInit {
 			
 			String tbInit = "CREATE DATABASE IF NOT EXISTS clients";
 			String selDB = "USE clients";
-			String dbClientInit = "CREATE TABLE IF NOT EXISTS `clients.client` ("
-					+ "	`id` INT(10) NOT NULL AUTO_INCREMENT,\r\n"
+			String dbClientInit = "CREATE TABLE IF NOT EXISTS `client` ("
+					+ "	`id` INT(10) NOT NULL AUTO_INCREMENT,"
 					+ "	`fname` VARCHAR(255) NOT NULL COLLATE 'latin1_swedish_ci',"
 					+ "	`lname` VARCHAR(255) NOT NULL COLLATE 'latin1_swedish_ci',"
 					+ "	`joined` DATETIME NULL DEFAULT current_timestamp(),"
@@ -58,9 +58,23 @@ public class DatabaseInit {
 					+ ")"
 					+ "COLLATE='latin1_swedish_ci'"
 					+ "ENGINE=InnoDB";
+			String accInit = "CREATE TABLE IF NOT EXISTS `account` ("
+					+ "	`id` INT NOT NULL AUTO_INCREMENT,"
+					+ "	`fk` INT NOT NULL,"
+					+ "	`type` VARCHAR(100) NOT NULL,"
+					+ "	`created` DATETIME NULL DEFAULT current_timestamp(),"
+					+ "	`acc_num` INT UNIQUE NOT NULL,"
+					+ "	`balance` DECIMAL(19, 4) DEFAULT 0.0,"
+					+ "	PRIMARY KEY (`id`) USING BTREE,"
+					+ "	INDEX `id` (`id`) USING BTREE,"
+					+ "	FOREIGN KEY (`fk`) REFERENCES client(`id`)"
+					+ ")"
+					+ "COLLATE='latin1_swedish_ci'"
+					+ "ENGINE=InnoDB";
 			stmt.addBatch(tbInit);
 			stmt.addBatch(selDB);
 			stmt.addBatch(dbClientInit);
+			stmt.addBatch(accInit);
 			stmt.executeBatch();
 			success = true;
 		} catch (SQLException e) {

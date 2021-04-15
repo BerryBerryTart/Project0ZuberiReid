@@ -1,15 +1,29 @@
 package com.berry.model;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+
 public class Account {
 	private int id;
-	private int fk;
 	private String type;
-	private long acc_num;
+	
+	@JsonInclude(JsonInclude.Include.NON_NULL)
+	private String created;
+	private int acc_num;
 	private double balance;
 	
-	public Account(int id, int fk, String type, long acc_num, double balance) {
+	//fully qualified account object
+	public Account(int id, String type, String created, int acc_num, double balance) {
 		this.id = id;
-		this.fk = fk;
+		this.type = type;
+		this.created = created;
+		this.acc_num = acc_num;
+		this.balance = balance;
+	}
+
+	//only returned on creation. ommited creation date to keep function pure
+	public Account(int id, String type, int acc_num, double balance) {
+		super();
+		this.id = id;
 		this.type = type;
 		this.acc_num = acc_num;
 		this.balance = balance;
@@ -22,28 +36,28 @@ public class Account {
 	public void setId(int id) {
 		this.id = id;
 	}
-
-	public int getFk() {
-		return fk;
-	}
-
-	public void setFk(int fk) {
-		this.fk = fk;
-	}
-
+	
 	public String getType() {
 		return type;
 	}
 
 	public void setType(String type) {
 		this.type = type;
+	}	
+
+	public String getCreated() {
+		return created;
 	}
 
-	public long getAcc_num() {
+	public void setCreated(String created) {
+		this.created = created;
+	}
+
+	public int getAcc_num() {
 		return acc_num;
 	}
 
-	public void setAcc_num(long acc_num) {
+	public void setAcc_num(int acc_num) {
 		this.acc_num = acc_num;
 	}
 

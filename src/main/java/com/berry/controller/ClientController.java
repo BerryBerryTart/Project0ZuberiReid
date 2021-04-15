@@ -53,10 +53,11 @@ public class ClientController implements Controller {
 	private Handler updateClient = ctx -> {
 		String fname = ctx.queryParam("fname");
 		String lname = ctx.queryParam("lname");
+		String id = ctx.pathParam("id");
 		if (fname == null || lname == null) {
 			throw new BadParameterException("Invalid Form Params");
 		}
-		Client client = clientService.updateClient(fname, lname);
+		Client client = clientService.updateClient(fname, lname, id);
 		if (client != null) {
 			ctx.json(client);
 			ctx.status(202);
@@ -65,10 +66,9 @@ public class ClientController implements Controller {
 	
 	private Handler deleteClient = ctx -> {
 		String id = ctx.pathParam("id");
-		Client client = clientService.deleteClientById(id);
-		if (client != null) {
-			ctx.json(client);
-			ctx.status(200);
+		boolean success = clientService.deleteClientById(id);
+		if (success == true) {
+			ctx.status(204);
 		}
 	};
 

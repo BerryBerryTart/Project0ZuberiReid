@@ -6,8 +6,8 @@ import org.slf4j.LoggerFactory;
 import com.berry.exception.AccountCreationException;
 import com.berry.exception.AccountNotFoundException;
 import com.berry.exception.BadParameterException;
-import com.berry.exception.ClientCreationException;
-import com.berry.exception.ClientNotFoundException;
+import com.berry.exception.CreationException;
+import com.berry.exception.NotFoundException;
 import com.berry.exception.DatabaseException;
 import com.berry.exception.ErrorMapFactory;
 
@@ -27,15 +27,15 @@ public class ExceptionController implements Controller {
 		ctx.status(400); // Provide an appropriate status code, such as 400
 	};
 
-	private ExceptionHandler<ClientNotFoundException> clientNotFoundExceptionHandler = (e, ctx) -> {
+	private ExceptionHandler<NotFoundException> clientNotFoundExceptionHandler = (e, ctx) -> {
 		logger.warn("No such client found. " + e.getMessage());
 		ctx.json(ErrorMapFactory.getErrorMap("Client Not Found"));
 		ctx.status(404); // 404 not found
 	};
 	
-	private ExceptionHandler<ClientCreationException> clientCreationException = (e, ctx) -> {
+	private ExceptionHandler<CreationException> creationException = (e, ctx) -> {
 		logger.warn("Invalid Params For Client Creation. " + e.getMessage());
-		ctx.json(ErrorMapFactory.getErrorMap("Failed To Create Client"));
+		ctx.json(ErrorMapFactory.getErrorMap("Failed To Update Client"));
 		ctx.status(400); // Provide an appropriate status code, such as 400
 	};
 	
@@ -47,21 +47,21 @@ public class ExceptionController implements Controller {
 	
 	private ExceptionHandler<AccountCreationException> accCreationException = (e, ctx) -> {
 		logger.warn("Invalid Params For Account Creation. " + e.getMessage());
-		ctx.json(ErrorMapFactory.getErrorMap("Failed To Create Account"));
+		ctx.json(ErrorMapFactory.getErrorMap(e.getMessage()));
 		ctx.status(400); // Provide an appropriate status code, such as 400
 	};
 	
 	private ExceptionHandler<DatabaseException> databaseException = (e, ctx) -> {
 		logger.warn("DB Error: " + e.getMessage());
 		ctx.json(ErrorMapFactory.getErrorMap("Database Error!"));
-		ctx.status(400);
+		ctx.status(500);
 	};
 
 	@Override
 	public void mapEndpoints(Javalin app) {
 		app.exception(BadParameterException.class, badParameterExceptionHandler);
-		app.exception(ClientNotFoundException.class, clientNotFoundExceptionHandler);
-		app.exception(ClientCreationException.class, clientCreationException);
+		app.exception(NotFoundException.class, clientNotFoundExceptionHandler);
+		app.exception(CreationException.class, creationException);
 		app.exception(AccountNotFoundException.class, accNotFoundExceptionHandler);
 		app.exception(AccountCreationException.class, accCreationException);
 		app.exception(DatabaseException.class, databaseException);
