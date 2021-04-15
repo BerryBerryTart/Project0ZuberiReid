@@ -1,15 +1,15 @@
 package com.berry.controller;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.berry.exception.AccountCreationException;
 import com.berry.exception.AccountNotFoundException;
 import com.berry.exception.BadParameterException;
 import com.berry.exception.ClientCreationException;
 import com.berry.exception.ClientNotFoundException;
+import com.berry.exception.DatabaseException;
+import com.berry.exception.ErrorMapFactory;
 
 import io.javalin.Javalin;
 import io.javalin.http.ExceptionHandler;
@@ -23,34 +23,38 @@ public class ExceptionController implements Controller {
 	 */
 	private ExceptionHandler<BadParameterException> badParameterExceptionHandler = (e, ctx) -> {
 		logger.warn("Bad parameter passed. " + e.getMessage());
-		Map<String, String> errorMap = new HashMap<String, String>();
-		errorMap.put("Error", "Invalid Parameter");
-		ctx.json(errorMap);
+		ctx.json(ErrorMapFactory.getErrorMap("Invalid Parameter"));
 		ctx.status(400); // Provide an appropriate status code, such as 400
 	};
 
 	private ExceptionHandler<ClientNotFoundException> clientNotFoundExceptionHandler = (e, ctx) -> {
 		logger.warn("No such client found. " + e.getMessage());
-		Map<String, String> errorMap = new HashMap<String, String>();
-		errorMap.put("Error", "Client Not Found");
-		ctx.json(errorMap);
+		ctx.json(ErrorMapFactory.getErrorMap("Client Not Found"));
 		ctx.status(404); // 404 not found
 	};
 	
 	private ExceptionHandler<ClientCreationException> clientCreationException = (e, ctx) -> {
-		logger.warn("Invalid params for creation. " + e.getMessage());
-		Map<String, String> errorMap = new HashMap<String, String>();
-		errorMap.put("Error", "Failed To Create Client");
-		ctx.json(errorMap);
+		logger.warn("Invalid Params For Client Creation. " + e.getMessage());
+		ctx.json(ErrorMapFactory.getErrorMap("Failed To Create Client"));
 		ctx.status(400); // Provide an appropriate status code, such as 400
 	};
 	
 	private ExceptionHandler<AccountNotFoundException> accNotFoundExceptionHandler = (e, ctx) -> {
 		logger.warn("No such account found. " + e.getMessage());
-		Map<String, String> errorMap = new HashMap<String, String>();
-		errorMap.put("Error", "Account Not Found");
-		ctx.json(errorMap);
+		ctx.json(ErrorMapFactory.getErrorMap("Account Not Found"));
 		ctx.status(404); // 404 not found
+	};
+	
+	private ExceptionHandler<AccountCreationException> accCreationException = (e, ctx) -> {
+		logger.warn("Invalid Params For Account Creation. " + e.getMessage());
+		ctx.json(ErrorMapFactory.getErrorMap("Failed To Create Account"));
+		ctx.status(400); // Provide an appropriate status code, such as 400
+	};
+	
+	private ExceptionHandler<DatabaseException> databaseException = (e, ctx) -> {
+		logger.warn("DB Error: " + e.getMessage());
+		ctx.json(ErrorMapFactory.getErrorMap("Database Error!"));
+		ctx.status(400);
 	};
 
 	@Override
@@ -59,6 +63,8 @@ public class ExceptionController implements Controller {
 		app.exception(ClientNotFoundException.class, clientNotFoundExceptionHandler);
 		app.exception(ClientCreationException.class, clientCreationException);
 		app.exception(AccountNotFoundException.class, accNotFoundExceptionHandler);
+		app.exception(AccountCreationException.class, accCreationException);
+		app.exception(DatabaseException.class, databaseException);
 	}
 
 }

@@ -18,10 +18,10 @@ import org.slf4j.LoggerFactory;
 
 import com.berry.app.Application;
 import com.berry.exception.ClientCreationException;
+import com.berry.exception.DatabaseException;
 import com.berry.model.Client;
 
 public class ClientRepo {
-	private static String fileIniPath = "src/main/resources/db.ini";
 	private transient String user;
 	private transient String pass;
 	private Connection conn = null;
@@ -34,14 +34,17 @@ public class ClientRepo {
 		super();
 	}
 
-	public Client createClient(String fname, String lname) throws ClientCreationException {
+	public Client createClient(String fname, String lname) throws ClientCreationException, DatabaseException {
 		Client client = null;
 		try {
 			connectToDB();
 			pstmt = conn.prepareStatement("INSERT INTO clients.client(fname, lname) VALUES (?,?)", Statement.RETURN_GENERATED_KEYS);
 			pstmt.setString(1, fname);
 			pstmt.setString(2, lname);
-			pstmt.executeUpdate();
+			int count = pstmt.executeUpdate();
+			if (count == 0) {
+				throw new DatabaseException("No Records Were Updated.");
+			}
 			rs = pstmt.getGeneratedKeys();
 			while (rs.next()) {
 				int createdId = rs.getInt("id");
@@ -148,7 +151,7 @@ public class ClientRepo {
 
 	private void connectToDB() {
 		try {
-			Wini ini = new Wini(new File(fileIniPath));
+			Wini ini = new Wini(new File(Application.fileIniPath));
 			final String URL = ini.get("database", "servername");
 			user = ini.get("database", "username");
 			pass = ini.get("database", "password");

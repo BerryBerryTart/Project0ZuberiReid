@@ -6,6 +6,7 @@ import com.berry.dao.ClientRepo;
 import com.berry.exception.BadParameterException;
 import com.berry.exception.ClientCreationException;
 import com.berry.exception.ClientNotFoundException;
+import com.berry.exception.DatabaseException;
 import com.berry.model.Client;
 
 public class ClientService {
@@ -15,7 +16,7 @@ public class ClientService {
 		this.clientRepo = new ClientRepo();
 	}
 
-	public Client createClient(String fname, String lname) throws ClientCreationException {
+	public Client createClient(String fname, String lname) throws ClientCreationException, DatabaseException {
 		Client client = null;
 		client = clientRepo.createClient(fname, lname);
 		if (client == null) {
@@ -31,6 +32,29 @@ public class ClientService {
 	}
 
 	public Client getClientById(String stringId) throws BadParameterException, ClientNotFoundException {
+		Client client = null;
+		try {
+			int id = Integer.parseInt(stringId);
+			client = clientRepo.getClientById(id);
+			if (client == null) {
+				throw new ClientNotFoundException("Client not found.");
+			}
+		} catch (NumberFormatException e) {
+			throw new BadParameterException("Param must be an integer.");
+		}
+		return client;
+	}
+	
+	public Client updateClient(String fname, String lname) throws ClientCreationException, DatabaseException {
+		Client client = null;
+		client = clientRepo.createClient(fname, lname);
+		if (client == null) {
+			throw new ClientCreationException("Invalid Update Params");
+		}
+		return client;
+	}
+	
+	public Client deleteClientById(String stringId) throws BadParameterException, ClientNotFoundException {
 		Client client = null;
 		try {
 			int id = Integer.parseInt(stringId);
