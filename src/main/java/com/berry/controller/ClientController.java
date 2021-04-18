@@ -5,12 +5,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.berry.dto.ClientDTO;
 import com.berry.exception.BadParameterException;
 import com.berry.model.Client;
 import com.berry.service.ClientService;
 
 import io.javalin.Javalin;
 import io.javalin.http.Handler;
+
 
 public class ClientController implements Controller {
 	private ClientService clientService;	
@@ -38,12 +40,13 @@ public class ClientController implements Controller {
 	};
 	
 	private Handler createClient = ctx -> {
-		String fname = ctx.queryParam("fname");
-		String lname = ctx.queryParam("lname");
-		if (fname == null || lname == null) {
-			throw new BadParameterException("Invalid Form Params");
+		ClientDTO clientDTO;
+		try {
+			clientDTO = ctx.bodyAsClass(ClientDTO.class);
+		} catch (Exception e) {
+			throw new BadParameterException(e.getMessage());
 		}
-		Client client = clientService.createClient(fname, lname);
+		Client client = clientService.createClient(clientDTO);
 		if (client != null) {
 			ctx.json(client);
 			ctx.status(201);
@@ -51,13 +54,14 @@ public class ClientController implements Controller {
 	};
 	
 	private Handler updateClient = ctx -> {
-		String fname = ctx.queryParam("fname");
-		String lname = ctx.queryParam("lname");
-		String id = ctx.pathParam("id");
-		if (fname == null || lname == null) {
-			throw new BadParameterException("Invalid Form Params");
+		ClientDTO clientDTO;
+		try {
+			clientDTO = ctx.bodyAsClass(ClientDTO.class);
+		} catch (Exception e) {
+			throw new BadParameterException(e.getMessage());
 		}
-		Client client = clientService.updateClient(fname, lname, id);
+		String id = ctx.pathParam("id");
+		Client client = clientService.updateClient(id, clientDTO);
 		if (client != null) {
 			ctx.json(client);
 			ctx.status(202);
