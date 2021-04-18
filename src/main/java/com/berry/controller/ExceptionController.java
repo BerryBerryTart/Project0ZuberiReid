@@ -23,7 +23,7 @@ public class ExceptionController implements Controller {
 	 */
 	private ExceptionHandler<BadParameterException> badParameterExceptionHandler = (e, ctx) -> {
 		logger.warn("Bad parameter passed. " + e.getMessage());
-		ctx.json(ErrorMapFactory.getErrorMap("Invalid Parameter"));
+		ctx.json(ErrorMapFactory.getErrorMap(e.getMessage()));
 		ctx.status(400); // Provide an appropriate status code, such as 400
 	};
 

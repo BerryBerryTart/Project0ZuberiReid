@@ -12,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.berry.app.Application;
+import com.berry.dto.ClientDTO;
 import com.berry.exception.CreationException;
 import com.berry.exception.DatabaseException;
 import com.berry.model.Client;
@@ -27,14 +28,14 @@ public class ClientRepo{
 		super();
 	}
 
-	public Client createClient(String fname, String lname) throws CreationException, DatabaseException {
+	public Client createClient(ClientDTO clientDTO) throws CreationException, DatabaseException {
 		Client client = null;
 		try {
 			conn = ConnectionUtil.connectToDB();
 			String sql = "INSERT INTO clients.client(fname, lname) VALUES (?,?)";
 			pstmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
-			pstmt.setString(1, fname);
-			pstmt.setString(2, lname);
+			pstmt.setString(1, clientDTO.getFname());
+			pstmt.setString(2, clientDTO.getLname());
 			int count = pstmt.executeUpdate();
 			if (count == 0) {
 				throw new DatabaseException("No Records Were Updated.");
@@ -42,7 +43,7 @@ public class ClientRepo{
 			rs = pstmt.getGeneratedKeys();
 			if (rs.next()) {
 				int createdId = rs.getInt("id");
-				client = new Client(fname, lname, createdId);
+				client = new Client(clientDTO.getFname(), clientDTO.getLname(), createdId);
 			}			
 		} catch (SQLException ex) {
 			logger.error("SQLException: " + ex.getMessage());
@@ -125,20 +126,20 @@ public class ClientRepo{
 		return clients;
 	}
 
-	public Client updateClient(String fname, String lname, int id) throws DatabaseException {
+	public Client updateClient(int id, ClientDTO clientDTO) throws DatabaseException {
 		Client client = null;
 		try {
 			String sql = "UPDATE clients.client SET fname=?, lname=? WHERE id=?";
 			conn = ConnectionUtil.connectToDB();
 			pstmt = conn.prepareStatement(sql);
-			pstmt.setString(1, fname);
-			pstmt.setString(2, lname);
+			pstmt.setString(1, clientDTO.getFname());
+			pstmt.setString(2, clientDTO.getLname());
 			pstmt.setInt(3, id);
 			int count = pstmt.executeUpdate();
 			if (count == 0) {
 				throw new DatabaseException("No Records Were Updated.");
 			}			
-			client = new Client(fname, lname, id);
+			client = new Client(clientDTO.getFname(), clientDTO.getLname(), id);
 					
 		} catch (SQLException ex) {
 			logger.error("SQLException: " + ex.getMessage());

@@ -3,6 +3,7 @@ package com.berry.service;
 import java.util.ArrayList;
 
 import com.berry.dao.ClientRepo;
+import com.berry.dto.ClientDTO;
 import com.berry.exception.BadParameterException;
 import com.berry.exception.CreationException;
 import com.berry.exception.NotFoundException;
@@ -17,13 +18,13 @@ public class ClientService {
 		this.clientRepo = new ClientRepo();
 	}
 
-	public Client createClient(String fname, String lname) throws CreationException, DatabaseException {
+	public Client createClient(ClientDTO clientDTO) throws CreationException, DatabaseException, BadParameterException {
 		Client client = null;
-		if (fname == null || lname == null) {
-			throw new CreationException("Invalid Creation Params");
+		if(clientDTO.noFieldEmpty() == false) {
+			throw new BadParameterException("First/Last Name Must Not Be Empty");
 		}
 		
-		client = clientRepo.createClient(fname, lname);
+		client = clientRepo.createClient(clientDTO);
 		
 		if (client == null) {
 			throw new CreationException("Failed To Create");
@@ -55,12 +56,16 @@ public class ClientService {
 		return client;
 	}
 	
-	public Client updateClient(String fname, String lname, String stringId) throws CreationException, DatabaseException, BadParameterException {
+	public Client updateClient(String stringId, ClientDTO clientDTO) throws CreationException, DatabaseException, BadParameterException {
 		Client client = null;
 		try {
 			int id = Integer.parseInt(stringId);
 			
-			client = clientRepo.updateClient(fname, lname, id);
+			if(clientDTO.noFieldEmpty() == false) {
+				throw new BadParameterException("First/Last Name Must Not Be Empty");
+			}
+			
+			client = clientRepo.updateClient(id, clientDTO);
 			
 			if (client == null) {
 				throw new CreationException("Failed To Update");
