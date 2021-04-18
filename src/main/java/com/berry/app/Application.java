@@ -3,6 +3,7 @@ package com.berry.app;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.berry.controller.AccountController;
 import com.berry.controller.ClientController;
 import com.berry.controller.Controller;
 import com.berry.controller.ExceptionController;
@@ -37,7 +38,7 @@ public class Application {
 			logger.info(httpMethod + " request to endpoint '" + URI + "' received");
 		});
 
-		mapControllers(new ClientController(), new ExceptionController());
+		mapControllers(new ClientController(), new AccountController(), new ExceptionController());
 
 		app.start(5000);
 	}

@@ -1,10 +1,6 @@
 package com.berry.dao;
 
-import java.io.File;
-import java.io.IOException;
-
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -12,7 +8,6 @@ import java.sql.Statement;
 
 import java.util.ArrayList;
 
-import org.ini4j.Wini;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,9 +16,7 @@ import com.berry.exception.CreationException;
 import com.berry.exception.DatabaseException;
 import com.berry.model.Client;
 
-public class ClientRepo implements Repo {
-	private static transient String user;
-	private static transient String pass;
+public class ClientRepo{
 	private Connection conn = null;
 	private PreparedStatement pstmt = null;
 	private ResultSet rs = null;
@@ -37,7 +30,7 @@ public class ClientRepo implements Repo {
 	public Client createClient(String fname, String lname) throws CreationException, DatabaseException {
 		Client client = null;
 		try {
-			connectToDB();
+			conn = ConnectionUtil.connectToDB();
 			String sql = "INSERT INTO clients.client(fname, lname) VALUES (?,?)";
 			pstmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
 			pstmt.setString(1, fname);
@@ -72,7 +65,7 @@ public class ClientRepo implements Repo {
 	public Client getClientById(int id) throws DatabaseException {
 		Client client = null;
 		// try to connect
-		connectToDB();
+		conn = ConnectionUtil.connectToDB();
 
 		try {
 			pstmt = conn.prepareStatement("SELECT * FROM clients.client WHERE id=?");
@@ -104,7 +97,7 @@ public class ClientRepo implements Repo {
 		ArrayList<Client> clients = new ArrayList<Client>();
 
 		// try to connect
-		connectToDB();
+		conn = ConnectionUtil.connectToDB();
 
 		try {
 			stmt = conn.createStatement();
@@ -136,7 +129,7 @@ public class ClientRepo implements Repo {
 		Client client = null;
 		try {
 			String sql = "UPDATE clients.client SET fname=?, lname=? WHERE id=?";
-			connectToDB();
+			conn = ConnectionUtil.connectToDB();
 			pstmt = conn.prepareStatement(sql);
 			pstmt.setString(1, fname);
 			pstmt.setString(2, lname);
@@ -169,7 +162,7 @@ public class ClientRepo implements Repo {
 		boolean success = false;
 		try {
 			String sql = "DELETE FROM clients.client WHERE id=?";
-			connectToDB();
+			conn = ConnectionUtil.connectToDB();
 			pstmt = conn.prepareStatement(sql);	
 			pstmt.setInt(1, id);
 			int count = pstmt.executeUpdate();
@@ -195,7 +188,7 @@ public class ClientRepo implements Repo {
 		return success;
 	}
 	
-	private Client getClientFromRS(ResultSet rs) throws SQLException {
+	public static Client getClientFromRS(ResultSet rs) throws SQLException {
 		Client client = null;
 		String fname = rs.getString("fname");
 		String lname = rs.getString("lname");
@@ -204,21 +197,5 @@ public class ClientRepo implements Repo {
 		client = new Client(fname, lname, joined, id);
 
 		return client;
-	}
-
-	@Override
-	public void connectToDB() throws DatabaseException {
-		try {
-			Wini ini = new Wini(new File(Application.fileIniPath));
-			final String URL = ini.get("database", "servername");
-			user = ini.get("database", "username");
-			pass = ini.get("database", "password");
-			conn = DriverManager.getConnection(URL, user, pass);
-		} catch (IOException e) {
-			logger.error(e.getMessage());
-		} catch (SQLException e) {
-			logger.error(e.getMessage());
-			throw new DatabaseException("Failure To Connect To Database");			
-		}
 	}
 }
