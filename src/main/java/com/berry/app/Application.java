@@ -28,7 +28,7 @@ public class Application {
 			logger.info("Successfully Intialised Database");
 		} else {
 			logger.info("Database Exists And Is Ready");
-		}
+		}	
 		
 		app = Javalin.create();
 

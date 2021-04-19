@@ -27,7 +27,7 @@ public class ClientService {
 		client = clientRepo.createClient(clientDTO);
 		
 		if (client == null) {
-			throw new CreationException("Failed To Create");
+			throw new CreationException("Failed To Create Client");
 		}
 		return client;
 	}
@@ -68,7 +68,7 @@ public class ClientService {
 			client = clientRepo.updateClient(id, clientDTO);
 			
 			if (client == null) {
-				throw new CreationException("Failed To Update");
+				throw new CreationException("Failed To Update Client");
 			}
 		}catch (NumberFormatException e) {
 			throw new BadParameterException("Param must be an integer.");

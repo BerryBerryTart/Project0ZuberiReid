@@ -11,6 +11,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.berry.app.Application;
+import com.berry.dto.AccQueryDTO;
+import com.berry.dto.AccountDTO;
+import com.berry.exception.BadParameterException;
 import com.berry.exception.DatabaseException;
 import com.berry.exception.NotFoundException;
 import com.berry.model.Account;
@@ -27,7 +30,7 @@ public class AccountRepo{
 		super();
 	}
 	
-	public ArrayList<Account> getAllAccounts(int id) throws DatabaseException, NotFoundException {
+	public ArrayList<Account> getAllAccounts(int id, AccQueryDTO accQueryDTO) throws DatabaseException, NotFoundException, BadParameterException {
 		ArrayList<Account> accs = new ArrayList<Account>();
 		
 		try {
@@ -36,12 +39,60 @@ public class AccountRepo{
 				throw new NotFoundException("No Client Found");
 			}
 			String accSQL = "SELECT * FROM clients.account WHERE fk=?";
+			
+			//Optional Queries here
+			if (accQueryDTO.lessThanNotEmpty()) {
+				int lessThan = Integer.parseInt(accQueryDTO.getLessThan());
+				accSQL = accSQL.concat(" AND balance < " + lessThan + " ");
+			}
+			if (accQueryDTO.greaterThanNotEmpty()) {
+				int greaterThan = Integer.parseInt(accQueryDTO.getGreaterThan());
+				accSQL = accSQL.concat(" AND balance > " + greaterThan + " ");
+			}
+			
 			pstmt = conn.prepareStatement(accSQL);
 			pstmt.setInt(1, id);
 			rs = pstmt.executeQuery();
 			
 			while (rs.next()) {
 				accs.add(getAccountFromRS(rs));
+			}
+			
+		} catch (NumberFormatException e) {
+			throw new BadParameterException("Query Param must be an integer.");
+		}
+		catch (SQLException e) {
+			logger.error(e.getMessage());
+		} finally {
+			try {
+				if (conn != null) {
+					conn.close();
+				} if (stmt != null) {
+					stmt.close();
+				} if (rs != null) {
+					rs.close();
+				}
+			} catch (SQLException ex) {
+				logger.error("So this happened " + ex.getMessage() + " :(");
+			}
+		}		
+		return accs;
+	}	
+	
+	public Account getAccountFromID(int id, int accId) throws DatabaseException, NotFoundException {
+		Account acc = null;
+		try {
+			conn = ConnectionUtil.connectToDB();
+			if (fetchClient(id) == null) {
+				throw new NotFoundException("No Client Found");
+			}
+			String accSQL = "SELECT * FROM clients.account WHERE id=?";
+			pstmt = conn.prepareStatement(accSQL);
+			pstmt.setInt(1, accId);
+			rs = pstmt.executeQuery();
+			
+			while (rs.next()) {
+				acc = getAccountFromRS(rs);
 			}
 			
 		} catch (SQLException e) {
@@ -59,19 +110,110 @@ public class AccountRepo{
 				logger.error("So this happened " + ex.getMessage() + " :(");
 			}
 		}
-		
-		return accs;
+		return acc;
+	}	
+
+	public Account createAccount(int id, AccountDTO accDTO) throws DatabaseException, NotFoundException {
+		Account acc = null;
+		try {
+			conn = ConnectionUtil.connectToDB();
+			if (fetchClient(id) == null) {
+				throw new NotFoundException("No Client Found");
+			}
+			
+			String sql = "INSERT INTO clients.account (`type`, acc_num, balance, fk)"
+					+ " VALUES (?,?,?,?)";
+			
+			pstmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+			pstmt.setString(1, accDTO.getType());
+			pstmt.setInt(2, accDTO.getAcc_num());
+			pstmt.setDouble(3, accDTO.getBalance());
+			pstmt.setInt(4, id);
+			
+			int count = pstmt.executeUpdate();
+			if (count == 0) {
+				throw new DatabaseException("No Records Were Updated.");
+			}
+			rs = pstmt.getGeneratedKeys();
+			if (rs.next()) {
+				acc = new Account(accDTO.getType(), accDTO.getAcc_num(), accDTO.getBalance());
+				acc.setId(rs.getInt("id"));
+			}			
+		} catch (SQLException ex) {
+			logger.error("SQLException: " + ex.getMessage());
+		} finally {
+			try {
+				if (conn != null) {
+					conn.close();
+				} if (stmt != null) {
+					stmt.close();
+				} if (rs != null) {
+					rs.close();
+				}
+			} catch (SQLException ex) {
+				logger.error("So this happened " + ex.getMessage() + " :(");
+			}
+		} 
+		return acc;
 	}
 	
+	public Account updateAccount(int id, int accId, AccountDTO accDTO) throws DatabaseException, NotFoundException {
+		Account acc = null;
+		try {
+			conn = ConnectionUtil.connectToDB();
+			if (fetchClient(id) == null) {
+				throw new NotFoundException("No Client Found");
+			}
+			
+			String sql = "UPDATE clients.account SET type=?, balance=?"
+					+ " WHERE id=?";
+			
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setString(1, accDTO.getType());
+			pstmt.setDouble(2, accDTO.getBalance());
+			pstmt.setInt(3, accId);
+			
+			int count = pstmt.executeUpdate();
+			if (count == 0) {
+				throw new DatabaseException("No Records Were Updated.");
+			}
+			
+			acc = new Account(accDTO.getType(), accDTO.getAcc_num(), accDTO.getBalance());
+			acc.setId(accId);
+						
+		} catch (SQLException ex) {
+			logger.error("SQLException: " + ex.getMessage());
+		} finally {
+			try {
+				if (conn != null) {
+					conn.close();
+				} if (stmt != null) {
+					stmt.close();
+				} if (rs != null) {
+					rs.close();
+				}
+			} catch (SQLException ex) {
+				logger.error("So this happened " + ex.getMessage() + " :(");
+			}
+		} 
+		return acc;
+	}
 	
-	private Account getAccountFromRS(ResultSet rs) throws SQLException{
+	public boolean deleteAccount(int id) {
+		return false;
+	}
+	
+	public static Account getAccountFromRS(ResultSet rs) throws SQLException{
 		Account acc = null;
 		int id = rs.getInt("id");
 		String type = rs.getString("type");
 		String created = rs.getString("created");
 		int acc_num = rs.getInt("acc_num");
 		double balance = rs.getDouble("balance");
-		acc = new Account(id, type, created, acc_num, balance);
+		
+		acc = new Account(type, acc_num, balance);
+		acc.setId(id);
+		acc.setCreated(created);
 		return acc;
 	}
 	

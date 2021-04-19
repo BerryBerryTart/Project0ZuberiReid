@@ -15,25 +15,11 @@ public class Client {
 	@JsonInclude(JsonInclude.Include.NON_NULL)
 	private ArrayList<Account> accounts;
 	
-	//full qualified client 
-	public Client(String fName, String lName, String joined, int id, ArrayList<Account> accounts) {
-		this(fName, lName, joined, id);
-		this.accounts = accounts;
-	}	
+	public Client() {}
 	
-	//for fetching client data
-	public Client(String fName, String lName, String joined, int id) {
+	public Client(String fName, String lName) {
 		this.fName = fName;
 		this.lName = lName;
-		this.joined = joined;
-		this.id = id;
-	}
-	
-	//ONLY returned when creating a client. Ommited creation date to keep function pure
-	public Client(String fName, String lName, int id) {
-		this.fName = fName;
-		this.lName = lName;
-		this.id = id;
 	}
 
 	public int getId() {
