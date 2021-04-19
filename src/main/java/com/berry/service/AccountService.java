@@ -83,4 +83,18 @@ public class AccountService {
 		return acc;
 	}
 	
+	public boolean deleteAccount(String stringId, String stringAccId) throws BadParameterException, DatabaseException, NotFoundException {
+		boolean success = false;
+		try {
+			int id = Integer.parseInt(stringId);
+			int accId = Integer.parseInt(stringAccId);
+			
+			success = accountRepo.deleteAccount(id, accId);
+			
+		} catch (NumberFormatException e) {
+			throw new BadParameterException("Param must be an integer.");
+		}
+		return success;
+	}
+	
 }

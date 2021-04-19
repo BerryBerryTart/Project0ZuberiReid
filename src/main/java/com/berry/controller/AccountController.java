@@ -7,10 +7,8 @@ import java.util.Map;
 
 import com.berry.dto.AccQueryDTO;
 import com.berry.dto.AccountDTO;
-import com.berry.dto.ClientDTO;
 import com.berry.exception.BadParameterException;
 import com.berry.model.Account;
-import com.berry.model.Client;
 import com.berry.service.AccountService;
 
 import io.javalin.Javalin;
@@ -81,7 +79,12 @@ public class AccountController implements Controller {
 	};
 
 	private Handler deleteAccount = ctx -> {
-
+		String id = ctx.pathParam("id");
+		String accID = ctx.pathParam("acc");
+		boolean success = accountService.deleteAccount(id, accID);
+		if (success == true) {
+			ctx.status(204);
+		}
 	};
 
 	@Override

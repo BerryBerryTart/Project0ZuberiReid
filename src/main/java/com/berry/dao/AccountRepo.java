@@ -35,9 +35,7 @@ public class AccountRepo{
 		
 		try {
 			conn = ConnectionUtil.connectToDB();
-			if (fetchClient(id) == null) {
-				throw new NotFoundException("No Client Found");
-			}
+			fetchClient(id);
 			String accSQL = "SELECT * FROM clients.account WHERE fk=?";
 			
 			//Optional Queries here
@@ -83,9 +81,7 @@ public class AccountRepo{
 		Account acc = null;
 		try {
 			conn = ConnectionUtil.connectToDB();
-			if (fetchClient(id) == null) {
-				throw new NotFoundException("No Client Found");
-			}
+			fetchClient(id);
 			String accSQL = "SELECT * FROM clients.account WHERE id=?";
 			pstmt = conn.prepareStatement(accSQL);
 			pstmt.setInt(1, accId);
@@ -117,10 +113,7 @@ public class AccountRepo{
 		Account acc = null;
 		try {
 			conn = ConnectionUtil.connectToDB();
-			if (fetchClient(id) == null) {
-				throw new NotFoundException("No Client Found");
-			}
-			
+			fetchClient(id);
 			String sql = "INSERT INTO clients.account (`type`, acc_num, balance, fk)"
 					+ " VALUES (?,?,?,?)";
 			
@@ -161,17 +154,18 @@ public class AccountRepo{
 		Account acc = null;
 		try {
 			conn = ConnectionUtil.connectToDB();
-			if (fetchClient(id) == null) {
-				throw new NotFoundException("No Client Found");
-			}
 			
+			fetchClient(id);
+			
+			//IT IS IMPORTANT to update by pk and fk
 			String sql = "UPDATE clients.account SET type=?, balance=?"
-					+ " WHERE id=?";
+					+ " WHERE id=? AND fk=?";
 			
 			pstmt = conn.prepareStatement(sql);
 			pstmt.setString(1, accDTO.getType());
 			pstmt.setDouble(2, accDTO.getBalance());
 			pstmt.setInt(3, accId);
+			pstmt.setInt(4, id);
 			
 			int count = pstmt.executeUpdate();
 			if (count == 0) {
@@ -199,8 +193,38 @@ public class AccountRepo{
 		return acc;
 	}
 	
-	public boolean deleteAccount(int id) {
-		return false;
+	public boolean deleteAccount(int id, int accId) throws DatabaseException, NotFoundException {
+		boolean success = false;
+		try {
+			conn = ConnectionUtil.connectToDB();
+			fetchClient(id);
+			//IT IS IMPORTANT to delete by pk and fk
+			String sql = "DELETE FROM clients.account WHERE id=? AND fk=?";
+			pstmt = conn.prepareStatement(sql);	
+			pstmt.setInt(1, accId);
+			pstmt.setInt(2, id);
+			
+			int count = pstmt.executeUpdate();
+			if (count == 0) {
+				throw new DatabaseException("No Records Were Updated.");
+			}
+			success = true;
+		} catch (SQLException ex) {
+			logger.error("SQLException: " + ex.getMessage());
+		} finally {
+			try {
+				if (conn != null) {
+					conn.close();
+				} if (stmt != null) {
+					stmt.close();
+				} if (rs != null) {
+					rs.close();
+				}
+			} catch (SQLException ex) {
+				logger.error("So this happened " + ex.getMessage() + " :(");
+			}
+		}
+		return success;
 	}
 	
 	public static Account getAccountFromRS(ResultSet rs) throws SQLException{
@@ -217,7 +241,7 @@ public class AccountRepo{
 		return acc;
 	}
 	
-	private Client fetchClient(int id) throws DatabaseException, SQLException {
+	private Client fetchClient(int id) throws DatabaseException, SQLException, NotFoundException {
 		Client client = null;
 		if (conn == null) {
 			throw new DatabaseException("Failure To Acquire Connection");
@@ -227,6 +251,9 @@ public class AccountRepo{
 		rs = pstmt.executeQuery();
 		while (rs.next()) {				
 			client = ClientRepo.getClientFromRS(rs);
+		}
+		if (client == null) {
+			throw new NotFoundException("No Client Found");
 		}
 		return client;
 	}
