@@ -30,7 +30,11 @@ public class Application {
 			logger.info("Database Exists And Is Ready");
 		}	
 		
-		app = Javalin.create();
+		app = Javalin.create(
+			config -> {
+				config.enableCorsForAllOrigins();
+			}
+		);
 
 		app.before(ctx -> {
 			String URI = ctx.req.getRequestURI();

@@ -20,10 +20,10 @@
 - `id` *integer*
     -  table primary key
     - generated on creation
-- `fname` *varchar* **required**
+- `fName` *varchar* **required**
     - first name field
     - 255 character limit
-- `lname` *varchar* **required**
+- `lName` *varchar* **required**
     - last name field
     - 255 charactrer limit
 - `joined` *datetime*
