@@ -4,5 +4,6 @@ db.ini
 *.jar
 *.war
 /.settings/
+/bin/
 .classpath
 main.js
