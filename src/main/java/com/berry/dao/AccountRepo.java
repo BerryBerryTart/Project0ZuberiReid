@@ -82,9 +82,10 @@ public class AccountRepo{
 		try {
 			conn = ConnectionUtil.connectToDB();
 			fetchClient(id);
-			String accSQL = "SELECT * FROM clients.account WHERE id=?";
+			String accSQL = "SELECT * FROM clients.account WHERE id=? AND fk=?";
 			pstmt = conn.prepareStatement(accSQL);
 			pstmt.setInt(1, accId);
+			pstmt.setInt(2, id);
 			rs = pstmt.executeQuery();
 			
 			while (rs.next()) {
