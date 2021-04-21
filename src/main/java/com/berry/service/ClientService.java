@@ -17,6 +17,10 @@ public class ClientService {
 	public ClientService() {
 		this.clientRepo = new ClientRepo();
 	}
+	
+	public ClientService(ClientRepo clientRepo) {
+		this.clientRepo = clientRepo;
+	}
 
 	public Client createClient(ClientDTO clientDTO) throws CreationException, DatabaseException, BadParameterException {
 		Client client = null;

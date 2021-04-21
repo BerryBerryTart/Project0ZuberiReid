@@ -19,22 +19,21 @@ public class Application {
 	public static void main(String[] args) {
 		if (args.length != 0) {
 			fileIniPath = args[0];
-		}
-		else {
+		} else {
 			fileIniPath = "src/main/resources/db.ini";
 		}
-		
+
 		if (DatabaseInit.initDB() == true) {
 			logger.info("Successfully Intialised Database");
 		} else {
 			logger.info("Database Exists And Is Ready");
-		}	
-		
-		app = Javalin.create(
-			config -> {
-				config.enableCorsForAllOrigins();
-			}
-		);
+		}
+
+		app = Javalin.create(config -> {
+			config.enableCorsForAllOrigins();
+			config.addStaticFiles("/static");
+			config.addSinglePageRoot("/", "/static/index.html");
+		});
 
 		app.before(ctx -> {
 			String URI = ctx.req.getRequestURI();

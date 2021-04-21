@@ -31,11 +31,11 @@ public class ClientRepo{
 	
 	public ArrayList<Client> getAllClients() throws DatabaseException {
 		ArrayList<Client> clients = new ArrayList<Client>();
-
-		// try to connect
-		conn = ConnectionUtil.connectToDB();
-
+		
 		try {
+			// try to connect
+			conn = ConnectionUtil.connectToDB();
+			
 			stmt = conn.createStatement();
 			rs = stmt.executeQuery("SELECT * FROM clients.client");
 			while (rs.next()) {
@@ -62,11 +62,12 @@ public class ClientRepo{
 	}
 	
 	public Client getClientById(int id) throws DatabaseException {
-		Client client = null;
-		// try to connect
-		conn = ConnectionUtil.connectToDB();
+		Client client = null;		
 
 		try {
+			// try to connect
+			conn = ConnectionUtil.connectToDB();
+			
 			pstmt = conn.prepareStatement("SELECT * FROM clients.client WHERE id=?");
 			pstmt.setInt(1, id);
 			rs = pstmt.executeQuery();
@@ -94,8 +95,10 @@ public class ClientRepo{
 
 	public Client createClient(ClientDTO clientDTO) throws CreationException, DatabaseException {
 		Client client = null;
+		
 		try {
 			conn = ConnectionUtil.connectToDB();
+			
 			String sql = "INSERT INTO clients.client(fname, lname) VALUES (?,?)";
 			
 			pstmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
@@ -110,8 +113,7 @@ public class ClientRepo{
 			rs = pstmt.getGeneratedKeys();
 			if (rs.next()) {
 				int createdId = rs.getInt("id");
-				client = new Client(clientDTO.getFname(), clientDTO.getLname());
-				client.setId(createdId);
+				client = new Client(clientDTO.getFname(), clientDTO.getLname(), createdId);
 			}			
 		} catch (SQLException ex) {
 			logger.error("SQLException: " + ex.getMessage());
@@ -133,6 +135,7 @@ public class ClientRepo{
 
 	public Client updateClient(int id, ClientDTO clientDTO) throws DatabaseException {
 		Client client = null;
+		
 		try {
 			String sql = "UPDATE clients.client SET fname=?, lname=? WHERE id=?";
 			conn = ConnectionUtil.connectToDB();
@@ -147,8 +150,7 @@ public class ClientRepo{
 				throw new DatabaseException("No Records Were Updated.");
 			}		
 			
-			client = new Client(clientDTO.getFname(), clientDTO.getLname());
-			client.setId(id);
+			client = new Client(clientDTO.getFname(), clientDTO.getLname(), id);
 					
 		} catch (SQLException ex) {
 			logger.error("SQLException: " + ex.getMessage());
@@ -170,6 +172,7 @@ public class ClientRepo{
 	
 	public boolean deleteClientById(int id) throws DatabaseException {
 		boolean success = false;
+		
 		try {
 			conn = ConnectionUtil.connectToDB();
 			
@@ -207,8 +210,7 @@ public class ClientRepo{
 		String joined = rs.getString("joined");
 		int id = rs.getInt("id");
 		
-		client = new Client(fname, lname);
-		client.setId(id);
+		client = new Client(fname, lname, id);
 		client.setJoined(joined);
 		
 		return client;

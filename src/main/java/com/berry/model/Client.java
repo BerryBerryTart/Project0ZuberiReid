@@ -17,6 +17,12 @@ public class Client {
 	
 	public Client() {}
 	
+	public Client(String fName, String lName, int id) {
+		this.id = id;
+		this.fName = fName;
+		this.lName = lName;
+	}
+	
 	public Client(String fName, String lName) {
 		this.fName = fName;
 		this.lName = lName;
@@ -61,5 +67,53 @@ public class Client {
 	public void setAccounts(ArrayList<Account> accounts) {
 		this.accounts = accounts;
 	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((accounts == null) ? 0 : accounts.hashCode());
+		result = prime * result + ((fName == null) ? 0 : fName.hashCode());
+		result = prime * result + id;
+		result = prime * result + ((joined == null) ? 0 : joined.hashCode());
+		result = prime * result + ((lName == null) ? 0 : lName.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Client other = (Client) obj;
+		if (accounts == null) {
+			if (other.accounts != null)
+				return false;
+		} else if (!accounts.equals(other.accounts))
+			return false;
+		if (fName == null) {
+			if (other.fName != null)
+				return false;
+		} else if (!fName.equals(other.fName))
+			return false;
+		if (id != other.id)
+			return false;
+		if (joined == null) {
+			if (other.joined != null)
+				return false;
+		} else if (!joined.equals(other.joined))
+			return false;
+		if (lName == null) {
+			if (other.lName != null)
+				return false;
+		} else if (!lName.equals(other.lName))
+			return false;
+		return true;
+	}
+	
+	
 	
 }

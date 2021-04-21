@@ -18,10 +18,17 @@ public class AccountService {
 		this.accountRepo = new AccountRepo();
 	}
 	
+	public AccountService(AccountRepo accountRepo) {
+		this.accountRepo = accountRepo;
+	}
+	
 	public ArrayList<Account> getAllAccounts(String stringId, AccQueryDTO accQueryDTO) throws DatabaseException, BadParameterException, NotFoundException {
 		ArrayList<Account> accs = new ArrayList<Account>();
 		int id = 0;
 		try {
+			if (accQueryDTO.lessThanNotEmpty() || accQueryDTO.greaterThanNotEmpty()) {
+				throw new BadParameterException("Query Params Must Be Integers");
+			}
 			id = Integer.parseInt(stringId);
 			accs = accountRepo.getAllAccounts(id, accQueryDTO);
 		} catch (NumberFormatException e) {
